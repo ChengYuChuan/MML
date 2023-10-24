@@ -3,7 +3,7 @@ from torch import nn
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 import torch.nn.functional as F
-import numpy
+import numpy as np
 import matplotlib.pyplot as plt
 
 
@@ -80,7 +80,18 @@ def trainAndVisualize(depth: int, width: int, initDistr: str, actFunc: str):
         # lrDecreacer.step()
     
     # get layer values
+    layerValues = []
+    print(model.linearStack)
+    for layer in model.parameters():
+        layerValues.append(np.array(layer.data.flatten().cpu()))
+        # layerValues.append(model.linearStack[layer*2])
+        # print(layerValues[-1].type, layerValues[-1])
     
+    # visualize the layer values
+    for layer in range(depth):
+        plt.hist(layerValues[layer])
+    plt.show()
+    # plt.savefig("test.png")
 
 LR = 0.01
 EPOCHS = 2#80
