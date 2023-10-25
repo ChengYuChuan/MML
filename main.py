@@ -33,7 +33,7 @@ class NeuralNetwork(nn.Module):
 
     def forward(self, x):
         x = self.flatten(x)
-        result = F.log_softmax(self.linearStack(x),dim=1)
+        result = F.log_softmax(self.linearStack(x),dim=1) # COM: this is where the softmax is applyed. 
         return result
     
 # adapted from https://github.com/pytorch/examples/blob/main/mnist/main.py    
