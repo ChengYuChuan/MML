@@ -13,13 +13,18 @@ import matplotlib.pyplot as plt
 class NeuralNetwork(nn.Module):
     def __init__(self, WIDTH, DEPTH, ACTIVATION):
         super().__init__()
-        if ACTIVATION == "ReLu":
-            activation = nn.ReLU()
-        elif ACTIVATION == "Sigmoidal":
-            activation = nn.Sigmoid()
-        #todo
-        else:
-            activation = nn.ReLU()
+        match ACTIVATION:
+            case "ReLu":
+                activation = nn.ReLU()
+            case "Sigmoidal":
+                activation = nn.Sigmoid()
+            case "Tanh":
+                activation = nn.Tanh()
+            case "Softsign":
+                activation = lambda x: x/(1+abs(x))
+            case _:
+                print("Error in activation function name") # TODO
+                activation = nn.ReLU()
         self.flatten = nn.Flatten()
         self.linearStack = nn.Sequential(
             nn.Linear(28*28, WIDTH),
@@ -82,18 +87,26 @@ def trainAndVisualize(depth: int, width: int, initDistr: str, actFunc: str):
     # get layer values
     layerValues = []
     print(model.linearStack)
-    for layer in model.parameters():
+    for layer in model.parameters(): # TODO!!!
         layerValues.append(np.array(layer.data.flatten().cpu()))
+        print(len(list(layerValues[-1])))
         # layerValues.append(model.linearStack[layer*2])
         # print(layerValues[-1].type, layerValues[-1])
+    print(len(layerValues))
     
     # visualize the layer values
     for layer in range(depth):
-        plt.hist(layerValues[layer])
+        counts, bins = np.histogram(layerValues[layer], bins = 100)
+        # print(counts, bins)
+        plt.plot(counts/np.sum(counts), label=str(layer))
+        plt.legend()
+        plt.xlabel("weight value")
+        plt.ylabel("value probability")
+        # plt.hist(layerValues[layer])
     plt.show()
     # plt.savefig("test.png")
 
 LR = 0.01
 EPOCHS = 2#80
-trainAndVisualize(5,1000,"normalized","ReLu")
+trainAndVisualize(5,1000,"normalized","Tanh")
     
