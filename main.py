@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 
 class NeuralNetwork(nn.Module):
-    def __init__(self, WIDTH, DEPTH, ACTIVATION):
+    def __init__(self, WIDTH, DEPTH, ACTIVATION, INIT):
         super().__init__()
         match ACTIVATION:
             case "ReLu":
@@ -34,7 +34,24 @@ class NeuralNetwork(nn.Module):
             self.linearStack.add_module(name=str(2*i+2), module=nn.Linear(WIDTH, WIDTH))
             self.linearStack.add_module(name=str(2*i+3), module=activation)
         self.linearStack.add_module(name=str(2*DEPTH+2), module=nn.Linear(WIDTH, 10))
-        # initialize values here ???
+        # initialize values
+        for layer in self.linearStack:
+            classname = layer.__class__.__name__
+            if classname.find('Linear') != -1:
+                match INIT: # .bernoulli_; .cauchy_; geometric_; normal_; xavier_uniform
+                    case "uniform":
+                        layer.weight.data.uniform_(-1.0, 1.0)
+                    case "normal":
+                        layer.weight.data.normal_(mean=0, std=1)
+                    case "uniform/10":
+                        layer.weight.data.uniform_(-0.1, 0.1)
+                    case "normal/10":
+                        layer.weight.data.normal_(mean=0, std=1/10)
+                    case "xavier":
+                        nn.init.xavier_uniform(layer)
+                    case _:
+                        pass
+                layer.bias.data.fill_(0)
 
     def forward(self, x):
         x = self.flatten(x)
@@ -57,7 +74,7 @@ def train(model, device, train_loader, optimizer, epoch):
                 100. * batch_idx / len(train_loader), loss.item()))
 
 
-def trainAndVisualize(depth: int, width: int, initDistr: str, actFunc: str):
+def trainAndVisualize(depth: int, width: int, initDistr: str, actFunc: str, init: str):
     device = (
         "cuda"
         if torch.cuda.is_available()
@@ -67,7 +84,7 @@ def trainAndVisualize(depth: int, width: int, initDistr: str, actFunc: str):
         )
     print(f"Using {device} device")
     
-    model = NeuralNetwork(WIDTH=width, DEPTH=depth, ACTIVATION=actFunc).to(device)
+    model = NeuralNetwork(WIDTH=width, DEPTH=depth, ACTIVATION=actFunc, INIT=init).to(device)
 
     transform=transforms.Compose([
         transforms.ToTensor(),
@@ -87,9 +104,12 @@ def trainAndVisualize(depth: int, width: int, initDistr: str, actFunc: str):
     # get layer values
     layerValues = []
     print(model.linearStack)
-    for layer in model.parameters(): # TODO!!!
-        layerValues.append(np.array(layer.data.flatten().cpu()))
-        print(len(list(layerValues[-1])))
+    for idx,layer in enumerate(model.parameters()): # TODO!!!
+        if len(layerValues) > 0:
+            print(len(list(layerValues[-1])))
+        if idx%2 == 0:
+            print("choosing this layer")
+            layerValues.append(np.array(layer.data.flatten().cpu()))
         # layerValues.append(model.linearStack[layer*2])
         # print(layerValues[-1].type, layerValues[-1])
     print(len(layerValues))
@@ -108,5 +128,5 @@ def trainAndVisualize(depth: int, width: int, initDistr: str, actFunc: str):
 
 LR = 0.01
 EPOCHS = 2#80
-trainAndVisualize(5,1000,"normalized","Tanh")
+trainAndVisualize(5,1000,"normalized","Tanh", "uniform")
     
