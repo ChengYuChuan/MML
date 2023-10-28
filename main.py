@@ -5,7 +5,23 @@ from torchvision import datasets, transforms
 import torch.nn.functional as F
 import numpy as np
 import matplotlib.pyplot as plt
+import argparse
 
+# argparser:
+parser = argparse.ArgumentParser(
+                    prog="Checking the Xavier Paper",
+                    description="pass which activation and initialisation to use and the distribution of weights will be returned in a plot",
+                    epilog="")
+parser.add_argument("-a", "--activation")
+parser.add_arguement("-i", "--initialisation")
+parser.add_arguement("--learningrate")
+parser.add_arguement("-e", "--epochs")
+parser.add_arguement("-d", "--depth")
+parser.add_arguement("-w", "--width")
+parser.add_arguement("-s", "--datasetsize")
+
+
+args = parser.parse_args()
 
 
 
@@ -23,7 +39,7 @@ class NeuralNetwork(nn.Module):
             case "Softsign":
                 activation = nn.Softsign()
             case _:
-                print("Error in activation function name") # TODO
+                print("Error in activation function name")
                 activation = nn.ReLU()
         self.flatten = nn.Flatten()
         self.linearStack = nn.Sequential(
@@ -50,7 +66,7 @@ class NeuralNetwork(nn.Module):
                     case "xavier":
                         nn.init.xavier_uniform(layer)
                     case _:
-                        pass
+                        print("Error in initialisation name. Choosing default.")
                 layer.bias.data.fill_(0)
 
     def forward(self, x):
@@ -74,7 +90,7 @@ def train(model, device, train_loader, optimizer, epoch):
                 100. * batch_idx / len(train_loader), loss.item()))
 
 
-def trainAndVisualize(depth: int, width: int, initDistr: str, actFunc: str, init: str):
+def trainAndVisualize(depth: int, width: int, initDistr: str, actFunc: str):
     device = (
         "cuda"
         if torch.cuda.is_available()
@@ -84,7 +100,7 @@ def trainAndVisualize(depth: int, width: int, initDistr: str, actFunc: str, init
         )
     print(f"Using {device} device")
     
-    model = NeuralNetwork(WIDTH=width, DEPTH=depth, ACTIVATION=actFunc, INIT=init).to(device)
+    model = NeuralNetwork(WIDTH=width, DEPTH=depth, ACTIVATION=actFunc, INIT=initDistr).to(device)
 
     transform=transforms.Compose([
         transforms.ToTensor(),
@@ -92,14 +108,12 @@ def trainAndVisualize(depth: int, width: int, initDistr: str, actFunc: str, init
         ])
     dataset = datasets.MNIST('../data', train=True, download=True,
                        transform=transform)
-    dataset_truncated = torch.utils.data.Subset(dataset, list(range(6000)))
+    dataset_truncated = torch.utils.data.Subset(dataset, list(range(int(args.datasetsize))))
     trainLoader = torch.utils.data.DataLoader(dataset_truncated, batch_size=10, shuffle=True)
     
     optimizer = torch.optim.Adam(model.parameters(), lr = LR)
-    # lrDecreacer = torch.optim.lr_scheduler(optimizer, step_size=3, gamma=0.005)
     for epoch in range(EPOCHS):
         train(model, device, trainLoader, optimizer, epoch)
-        # lrDecreacer.step()
     
     # get layer values
     layerValues = []
@@ -110,23 +124,19 @@ def trainAndVisualize(depth: int, width: int, initDistr: str, actFunc: str, init
         if idx%2 == 0:
             print("choosing this layer")
             layerValues.append(np.array(layer.data.flatten().cpu()))
-        # layerValues.append(model.linearStack[layer*2])
-        # print(layerValues[-1].type, layerValues[-1])
     print(len(layerValues))
     
     # visualize the layer values
     for layer in range(depth):
         counts, bins = np.histogram(layerValues[layer], bins = 100)
-        # print(counts, bins)
         plt.plot(counts/np.sum(counts), label=str(layer))
         plt.legend()
         plt.xlabel("weight value")
         plt.ylabel("value probability")
-        # plt.hist(layerValues[layer])
     plt.show()
-    # plt.savefig("test.png")
+    plt.savefig("test.png")
 
-LR = 0.01
-EPOCHS = 2#80
-trainAndVisualize(5,1000,"normalized","Tanh", "uniform")
+LR = float(args.learningrate)
+EPOCHS = int(args.epochs)
+trainAndVisualize(int(args.depth),int(args.width),args.initialisation,args.activation)
     
