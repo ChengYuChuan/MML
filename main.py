@@ -21,7 +21,7 @@ class NeuralNetwork(nn.Module):
             case "Tanh":
                 activation = nn.Tanh()
             case "Softsign":
-                activation = lambda x: x/(1+abs(x))
+                activation = nn.Softsign()
             case _:
                 print("Error in activation function name") # TODO
                 activation = nn.ReLU()
