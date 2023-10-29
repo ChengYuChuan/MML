@@ -13,12 +13,12 @@ parser = argparse.ArgumentParser(
                     description="pass which activation and initialisation to use and the distribution of weights will be returned in a plot",
                     epilog="")
 parser.add_argument("-a", "--activation")
-parser.add_arguement("-i", "--initialisation")
-parser.add_arguement("--learningrate")
-parser.add_arguement("-e", "--epochs")
-parser.add_arguement("-d", "--depth")
-parser.add_arguement("-w", "--width")
-parser.add_arguement("-s", "--datasetsize")
+parser.add_argument("-i", "--initialisation")
+parser.add_argument("--learningrate")
+parser.add_argument("-e", "--epochs")
+parser.add_argument("-d", "--depth")
+parser.add_argument("-w", "--width")
+parser.add_argument("-s", "--datasetsize")
 
 
 args = parser.parse_args()
