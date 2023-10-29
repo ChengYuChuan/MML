@@ -42,10 +42,8 @@ class NeuralNetwork(nn.Module):
                 print("Error in activation function name")
                 activation = nn.ReLU()
         self.flatten = nn.Flatten()
-        self.linearStack = nn.Sequential(
-            nn.Linear(28*28, WIDTH),
-            nn.ReLU(),
-        )
+        self.linearStack = nn.Sequential(nn.Linear(28*28, WIDTH))
+        self.linearStack.add_module(name="2", module=activation)
         for i in range(DEPTH):
             self.linearStack.add_module(name=str(2*i+2), module=nn.Linear(WIDTH, WIDTH))
             self.linearStack.add_module(name=str(2*i+3), module=activation)
@@ -64,7 +62,7 @@ class NeuralNetwork(nn.Module):
                     case "normal/10":
                         layer.weight.data.normal_(mean=0, std=1/10)
                     case "xavier":
-                        nn.init.xavier_uniform(layer)
+                        nn.init.xavier_uniform(layer.weight)
                     case _:
                         print("Error in initialisation name. Choosing default.")
                 layer.bias.data.fill_(0)
@@ -134,7 +132,7 @@ def trainAndVisualize(depth: int, width: int, initDistr: str, actFunc: str):
         plt.xlabel("weight value")
         plt.ylabel("value probability")
     plt.show()
-    plt.savefig(f"Weight_Distribution_depth{args.depth}_width{args.width}_init={args.initiolisation}_act={args.activation}.png")
+    plt.savefig(f"Weight_Distribution_depth{args.depth}_width{args.width}_init={args.initialisation}_act={args.activation}.png")
 
 LR = float(args.learningrate)
 EPOCHS = int(args.epochs)
