@@ -116,14 +116,10 @@ def trainAndVisualize(depth: int, width: int, initDistr: str, actFunc: str):
     
     # get layer values
     layerValues = []
-    print(model.linearStack)
     for idx,layer in enumerate(model.parameters()): # TODO!!!
         if len(layerValues) > 0:
-            print(len(list(layerValues[-1])))
         if idx%2 == 0:
-            print("choosing this layer")
             layerValues.append(np.array(layer.data.flatten().cpu()))
-    print(len(layerValues))
     
     # visualize the layer values
     for layer in range(depth):
