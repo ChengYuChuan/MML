@@ -83,7 +83,7 @@ def train(model, device, train_loader, optimizer, epoch):
         loss = F.nll_loss(output, target)
         loss.backward()
         optimizer.step()
-        if batch_idx % 100 == 0:
+        if batch_idx % 500 == 0:
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
                 100. * batch_idx / len(train_loader), loss.item()))
@@ -133,7 +133,7 @@ def trainAndVisualize(depth: int, width: int, initDistr: str, actFunc: str):
         plt.xlabel("weight value")
         plt.ylabel("value probability")
     # plt.show()
-    plt.savefig(os.path.join(images, f"Weight_Distribution_depth{args.depth}_width{args.width}_init={args.initialisation}_act={args.activation}.png"))
+    plt.savefig(os.path.join("images", f"Weight_Distribution_depth{args.depth}_width{args.width}_init={args.initialisation}_act={args.activation}.png").replace('/', '_'))
 
 LR = float(args.learningrate)
 EPOCHS = int(args.epochs)
