@@ -131,8 +131,8 @@ def trainAndVisualize(depth: int, width: int, initDistr: str, actFunc: str):
         plt.legend()
         plt.xlabel("weight value")
         plt.ylabel("value probability")
-    plt.show()
-    plt.savefig(f"Weight_Distribution_depth{args.depth}_width{args.width}_init={args.initialisation}_act={args.activation}.png")
+    # plt.show()
+    plt.savefig(f"images/Weight_Distribution_depth{args.depth}_width{args.width}_init={args.initialisation}_act={args.activation}.png")
 
 LR = float(args.learningrate)
 EPOCHS = int(args.epochs)
