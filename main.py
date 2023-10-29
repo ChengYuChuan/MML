@@ -116,8 +116,7 @@ def trainAndVisualize(depth: int, width: int, initDistr: str, actFunc: str):
     
     # get layer values
     layerValues = []
-    for idx,layer in enumerate(model.parameters()): # TODO!!!
-        if len(layerValues) > 0:
+    for idx,layer in enumerate(model.parameters()):
         if idx%2 == 0:
             layerValues.append(np.array(layer.data.flatten().cpu()))
     
