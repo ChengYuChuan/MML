@@ -33,12 +33,16 @@ class NeuralNetwork(nn.Module):
         match ACTIVATION:
             case "ReLu":
                 activation = nn.ReLU()
+                print("Using ReLu")
             case "Sigmoidal":
                 activation = nn.Sigmoid()
+                print("Using Sigmoid")
             case "Tanh":
                 activation = nn.Tanh()
+                print("Using Tanh")
             case "Softsign":
                 activation = nn.Softsign()
+                print("Using Softsign")
             case _:
                 print("Error in activation function name")
                 activation = nn.ReLU()
@@ -64,8 +68,10 @@ class NeuralNetwork(nn.Module):
                         layer.weight.data.normal_(mean=0, std=1/10)
                     case "xavier":
                         nn.init.xavier_uniform(layer.weight)
+                    case "default":
+                        pass
                     case _:
-                        print("Error in initialisation name. Choosing default.")
+                        raise ValueError("Error in initialisation name.")
                 layer.bias.data.fill_(0)
 
     def forward(self, x):
@@ -123,7 +129,7 @@ def trainAndVisualize(depth: int, width: int, initDistr: str, actFunc: str):
     # visualize the layer values
     for layer in range(depth):
         counts, bins = np.histogram(layerValues[layer], bins = 100)
-        plt.plot(counts/np.sum(counts), label=str(layer))
+        plt.plot((bins[1:]+bins[:-1])/2, counts/np.sum(counts), label=str(layer))
         plt.legend()
         plt.xlabel("weight value")
         plt.ylabel("value probability")
